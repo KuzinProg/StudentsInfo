@@ -1,5 +1,5 @@
-from windows.main_window import MainWindow
+from windows.login_window import LoginWindow
+
 
 if __name__ == '__main__':
-    main_window = MainWindow()
-    main_window.mainloop()
+    login_window = LoginWindow()

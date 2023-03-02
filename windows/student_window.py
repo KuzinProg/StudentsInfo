@@ -2,6 +2,9 @@ from tkinter import *
 from tkinter.ttk import *
 from tkcalendar import *
 
+from db_controller import DataBase
+from student import Student
+
 
 class StudentWindow(Toplevel):
     def __init__(self):
@@ -50,7 +53,8 @@ class StudentWindow(Toplevel):
         self.group_label = Label(self, text='Группа')
         self.group_label.pack(side=TOP, anchor=W, padx=50)
 
-        self.group_combobox = Combobox(self, width=40)
+        self.groups = DataBase.get_groups()
+        self.group_combobox = Combobox(self, values=[value[1] for value in self.groups], width=40)
         self.group_combobox.pack(side=TOP, anchor=W, padx=50, pady=[0, 15])
 
         self.average_mark_label = Label(self, text='Средний балл')
@@ -61,11 +65,20 @@ class StudentWindow(Toplevel):
 
         self.buttons_frame = Frame(self)
 
-        self.add_button = Button(self.buttons_frame, text='Добавить')
+        self.add_button = Button(self.buttons_frame, text='Добавить', command=self.add_button_click)
         self.add_button.pack(side=LEFT)
 
-        self.cancel_button = Button(self.buttons_frame, text='Отменить')
+        self.cancel_button = Button(self.buttons_frame, text='Отменить', command=lambda: self.destroy())
         self.cancel_button.pack(side=LEFT)
 
         self.buttons_frame.pack(side=TOP)
+
         """self.photo = photo"""
+
+    def add_button_click(self):
+        student = Student(self.first_name_entry.get(), self.last_name_entry.get(), self.middle_name_entry.get(),
+                          'Мужской', '', self.birth_date_entry.get_date(), self.phone_entry.get(), self.address_entry.get(),
+                          self.groups[self.group_combobox.current()][0], float(self.average_mark_entry.get()))
+        DataBase.add_student(student)
+        self.destroy()
+[]
