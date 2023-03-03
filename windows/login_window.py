@@ -1,3 +1,4 @@
+import tkinter.messagebox
 from tkinter import *
 from tkinter.ttk import *
 
@@ -29,7 +30,7 @@ class LoginWindow(Tk):
         self.login_button = Button(self.buttons_frame, text='Вход', command=lambda: self.login_button_click(None))
         self.login_button.pack(side=LEFT)
 
-        self.cancel_button = Button(self.buttons_frame, text='Отмена')
+        self.cancel_button = Button(self.buttons_frame, text='Отмена', command=lambda: self.destroy())
         self.cancel_button.pack(side=LEFT)
 
         self.buttons_frame.pack(side=TOP)
@@ -41,15 +42,8 @@ class LoginWindow(Tk):
         password = self.password_entry.get().strip()
         user_role = DataBase.get_user(login, password)
         # 1 - admin
-        if user_role == 1:
+        if user_role is not None:
             self.destroy()
             main_window = MainWindow(user_role)
-        # 2 - lecture
-        elif user_role == 2:
-            pass
-        # 3 - student
-        elif user_role == 3:
-            pass
         else:
-            # TODO: Обработка неправильного ввода
-            pass
+            tkinter.messagebox.showerror('Ошибка', message='Неправильный логин или пароль.')

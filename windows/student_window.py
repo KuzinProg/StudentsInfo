@@ -6,13 +6,12 @@ from db_controller import DataBase
 from student import Student
 
 
-class StudentWindow(Toplevel):
+class StudentWindow(Tk):
     def __init__(self):
         super().__init__()
         self.title("Студент")
-        self.geometry("350x500")
+        self.geometry("350x540")
         self.grab_set()
-        '''self.wait_window()'''
 
         self.last_name_label = Label(self, text='Фамилия')
         self.last_name_label.pack(side=TOP, anchor=W, padx=50)
@@ -37,6 +36,12 @@ class StudentWindow(Toplevel):
 
         self.birth_date_entry = DateEntry(self, width=37)
         self.birth_date_entry.pack(side=TOP, anchor=W, padx=50, pady=[0, 15])
+
+        self.gender_label = Label(self, text='Пол')
+        self.gender_label.pack(side=TOP, anchor=W, padx=50)
+
+        self.gender_combobox = Combobox(self, values=['Мужской', 'Женский'], width=40)
+        self.gender_combobox.pack(side=TOP, anchor=W, padx=50, pady=[0, 15])
 
         self.phone_label = Label(self, text='Номер телефона')
         self.phone_label.pack(side=TOP, anchor=W, padx=50)
@@ -73,12 +78,10 @@ class StudentWindow(Toplevel):
 
         self.buttons_frame.pack(side=TOP)
 
-        """self.photo = photo"""
-
     def add_button_click(self):
-        student = Student(self.first_name_entry.get(), self.last_name_entry.get(), self.middle_name_entry.get(),
-                          'Мужской', '', self.birth_date_entry.get_date(), self.phone_entry.get(), self.address_entry.get(),
+        student = Student(None, self.first_name_entry.get(), self.last_name_entry.get(), self.middle_name_entry.get(),
+                          self.gender_combobox.get(), '', self.birth_date_entry.get_date(), self.phone_entry.get(), self.address_entry.get(),
                           self.groups[self.group_combobox.current()][0], float(self.average_mark_entry.get()))
         DataBase.add_student(student)
+        self.grab_release()
         self.destroy()
-[]
