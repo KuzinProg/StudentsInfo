@@ -44,6 +44,7 @@ class MainWindow(Tk):
         self.table.column('group', width=70)
         self.table.column('average_mark', width=95)
         self.table.grid(row=0, column=1, columnspan=3, padx=20, pady=20)
+        self.table.bind('<Double-1>', self.on_table_click)
         self.update_table()
         if role == 1:
             self.buttons_frame = Frame()
@@ -91,3 +92,9 @@ class MainWindow(Tk):
         student_window = StudentWindow()
         # TODO: ГОВНОКОД
         student_window.add_button.bind('<Destroy>', self.on_added_student)
+
+    def on_table_click(self, event):
+        for selected_item in self.table.selection():
+            id = int(self.table.item(selected_item)['values'][0])
+            StudentWindow(student=id)
+

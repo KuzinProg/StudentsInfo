@@ -45,6 +45,21 @@ class DataBase:
         return students
 
     @staticmethod
+    def get_student(id):
+        cursor = DataBase.connection.cursor()
+        cursor.execute(
+            "SELECT student.id, first_name, last_name, middle_name, gender, photo, birth_date, phone, "
+            "address, name, average_mark FROM student "
+            "INNER JOIN stud_group "
+            "ON student.stud_group = stud_group.id "
+            "WHERE student.id=?", (id,))
+        result = cursor.fetchone()
+        if result is None:
+            return None
+        cursor.close()
+        return Student(*result)
+
+    @staticmethod
     def get_groups():
         cursor = DataBase.connection.cursor()
         cursor.execute("SELECT * FROM stud_group")
