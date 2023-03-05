@@ -59,6 +59,32 @@ class DataBase:
         cursor.close()
         return Student(*result)
 
+
+    def get_id_group(self, group_name):
+        cursor = DataBase.connection.cursor()
+        cursor.execute(
+            "SELECT id FROM stud_group "
+            "WHERE name=?", (group_name,))
+        result = cursor.fetchone()
+        if result is None:
+            return None
+        cursor.close()
+        return result[0]
+
+
+    @staticmethod
+    def update_student(student: Student):
+        group_id = DataBase.get_id_group(student.group)
+        cursor = DataBase.connection.cursor()
+        cursor.execute("UPDATE student SET first_name = ?, last_name = ?, middle_name = ?, gender = ?, photo = ?, "
+                       "birth_date = ?, phone = ?, address = ?, stud_group = ?, average_mark = ? "
+                       "WHERE id=?", (student.first_name, student.last_name, student.middle_name, student.gender,
+                                      student.photo, student.birth_date, student.phone, student.address, group_id,
+                                      student.average_mark, student.id))
+        DataBase.connection.commit()
+        cursor.close()
+
+
     @staticmethod
     def get_groups():
         cursor = DataBase.connection.cursor()

@@ -5,7 +5,7 @@ class Student:
         self.first_name = first_name
         self.last_name = last_name
         self.middle_name = middle_name
-        self.gender = gender
+        self.gender = str(gender)
         self.photo = photo
         self.birth_date = birth_date
         self.phone = phone
