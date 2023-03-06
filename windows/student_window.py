@@ -1,6 +1,8 @@
 import datetime
+import os.path
 import pathlib
-from tkinter import filedialog, Tk, TOP, W, LEFT, Canvas, NW, N, Toplevel
+import shutil
+from tkinter import filedialog, TOP, W, LEFT, Canvas, NW, N, Toplevel
 from tkinter.ttk import Frame, Label, Entry, Combobox, Button
 
 from PIL import ImageTk, Image
@@ -18,6 +20,8 @@ class StudentWindow(Toplevel):
         self.grab_set()
 
         self.file_name = ''
+        self.student = student
+        self.img = None
 
         self.left_side = Frame(self)
 
@@ -102,9 +106,6 @@ class StudentWindow(Toplevel):
             self.last_name_entry.insert(0, student.last_name)
             self.first_name_entry.insert(0, student.first_name)
             self.middle_name_entry.insert(0, student.middle_name)
-            if student.photo is not None:
-                path = pathlib.Path(__file__).parent.parent
-                self.update_image(f'{path}/photos/{student.photo}')
             date = datetime.datetime.strptime(student.birth_date, "%Y-%m-%d")
             self.birth_date_entry.set_date(date)
             self.gender_combobox.set(student.gender)
@@ -112,13 +113,13 @@ class StudentWindow(Toplevel):
             self.address_entry.insert(0, student.address)
             self.group_combobox.set(student.group)
             self.average_mark_entry.insert(0, student.average_mark)
+            if student.photo is not None:
+                self.file_name = student.photo
+                self.update_image(student.photo)
 
 
-        self.mainloop()
 
     def add_button_click(self):
-        # TODO: Хранить название фото, а не полный путь
-        #       Копирование фотки в папку
         if self.student is None:
             student = Student(None, self.first_name_entry.get(), self.last_name_entry.get(), self.middle_name_entry.get(),
                               self.gender_combobox.get(), self.file_name, self.birth_date_entry.get_date(), self.phone_entry.get(),
@@ -126,21 +127,25 @@ class StudentWindow(Toplevel):
                               self.groups[self.group_combobox.current()][0], float(self.average_mark_entry.get()))
             DataBase.add_student(student)
         else:
-            student = Student(self.student.id, self.first_name_entry.get(), self.last_name_entry.get(), self.middle_name_entry.get(),
+            student = Student(self.student, self.first_name_entry.get(), self.last_name_entry.get(), self.middle_name_entry.get(),
                               self.gender_combobox.get(), self.file_name, self.birth_date_entry.get_date(),
                               self.phone_entry.get(), self.address_entry.get(),
-                              self.groups[self.group_combobox.current()][0], float(self.average_mark_entry.get()))
+                              self.groups[self.group_combobox.current()][1], float(self.average_mark_entry.get()))
             DataBase.update_student(student)
         self.destroy()
 
     def update_image(self, file_name):
-        img = Image.open(file_name).resize((150, 175))
-        img = ImageTk.PhotoImage(img)
-        self.photo_canvas.create_image(0, 0, anchor=NW, image=img)
-        self.photo_canvas.mainloop()
+        path = f'{pathlib.Path(__file__).parent.parent}/photos/{file_name}'
+        self.img = Image.open(path).resize((150, 175))
+        self.img = ImageTk.PhotoImage(self.img)
+        self.photo_canvas.create_image(0, 0, anchor=NW, image=self.img)
 
     def upload_button_click(self):
         file = filedialog.askopenfile(filetypes=[('Файлы изображений', '.png .jpg .jpeg')])
         if file is not None:
-            self.file_name = file.name
+            src = file.name
+            path = pathlib.Path(__file__).parent.parent
+            dst = f'{path}/photos/{os.path.basename(src)}'
+            shutil.copy(src, dst)
+            self.file_name = os.path.basename(src)
             self.update_image(self.file_name)

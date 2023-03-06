@@ -15,17 +15,22 @@ class MainWindow(Tk):
         self.groups = DataBase.get_groups()
         self.students = []
 
-        self.groups_combobox = Combobox(values=['Все'] + [value[1] for value in self.groups])
+        self.left_frame = Frame(self)
+
+        self.groups_combobox = Combobox(self.left_frame, values=['Все'] + [value[1] for value in self.groups])
         self.groups_combobox.set('Все')
         self.groups_combobox.bind("<<ComboboxSelected>>", self.update_table)
-        self.groups_combobox.grid(row=0, column=0, sticky=N, padx=20, pady=20)
+        self.groups_combobox.pack(side=TOP, anchor=W, pady=[0, 25])
         self.update_students()
-        # self.search_label = Label(self, text='Поиск')
-        # self.search_label.grid()
 
-        self.search_entry = Entry(width=25)
+        self.search_label = Label(self.left_frame, text='Поиск')
+        self.search_label.pack(side=TOP, anchor=W)
+
+        self.search_entry = Entry(self.left_frame, width=25)
         self.search_entry.bind('<KeyRelease>', self.on_search_entry_key_pressed)
-        self.search_entry.grid(row=1, column=0, sticky=N, pady=20, padx=20)
+        self.search_entry.pack(side=TOP, anchor=W)
+
+        self.left_frame.grid(row=0, column=0, sticky=N, pady=20)
 
         columns = ('id', 'fullname', 'birth_date', 'phone', 'address', 'group', 'average_mark')
         self.table = Treeview(columns=columns, show='headings')
@@ -45,7 +50,7 @@ class MainWindow(Tk):
         self.table.column('average_mark', width=95)
         self.table.grid(row=0, column=1, columnspan=3, padx=20, pady=20)
         self.table.bind('<Double-1>', self.on_table_click)
-        self.update_table()
+        self.update_table(None)
         if role == 1:
             self.buttons_frame = Frame()
 
@@ -58,23 +63,21 @@ class MainWindow(Tk):
             self.buttons_frame.grid(row=1, column=3, sticky=E, padx=20)
         self.mainloop()
 
-    def update_table(self):
+    def update_table(self, event):
         for item in self.table.get_children():
             self.table.delete(item)
+        self.update_students()
         for student in self.students:
             item = (student.id, f'{student.last_name} {student.first_name} {student.middle_name}',
                     student.birth_date, student.phone, student.address, student.group, student.average_mark)
             self.table.insert("", END, values=item)
-
-    def on_added_student(self, event):
-        self.update_table()
 
     def update_students(self):
         self.students = DataBase.get_students(
             self.groups[self.groups_combobox.current() - 1][0] if self.groups_combobox.current() != 0 else None)
 
     def on_search_entry_key_pressed(self, event):
-        self.update_table()
+        self.update_table(event)
         text = self.search_entry.get()
         s = [(self.table.set(i, 1), i) for i in self.table.get_children("")]
         for item in s:
@@ -91,10 +94,14 @@ class MainWindow(Tk):
     def add_button_click(self):
         student_window = StudentWindow()
         # TODO: ГОВНОКОД
-        student_window.add_button.bind('<Destroy>', self.on_added_student)
+        student_window.add_button.bind('<Destroy>', self.update_table)
 
     def on_table_click(self, event):
         for selected_item in self.table.selection():
             id = int(self.table.item(selected_item)['values'][0])
-            StudentWindow(student=id)
+            student_window = StudentWindow(student=id)
+            # TODO: ГОВНОКОД №2
+            student_window.add_button.bind('<Destroy>', self.update_table)
+            break
+
 

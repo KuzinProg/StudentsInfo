@@ -59,8 +59,8 @@ class DataBase:
         cursor.close()
         return Student(*result)
 
-
-    def get_id_group(self, group_name):
+    @staticmethod
+    def get_id_group(group_name):
         cursor = DataBase.connection.cursor()
         cursor.execute(
             "SELECT id FROM stud_group "
@@ -70,7 +70,6 @@ class DataBase:
             return None
         cursor.close()
         return result[0]
-
 
     @staticmethod
     def update_student(student: Student):
@@ -83,7 +82,6 @@ class DataBase:
                                       student.average_mark, student.id))
         DataBase.connection.commit()
         cursor.close()
-
 
     @staticmethod
     def get_groups():
