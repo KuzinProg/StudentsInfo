@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter.ttk import *
 
 from db_controller import DataBase
+from windows.print_window import PrintWindow
 from windows.student_window import StudentWindow
 
 
@@ -10,14 +11,14 @@ class MainWindow(Tk):
     def __init__(self, role):
         super().__init__()
         self.title("База данных студентов")
-        self.geometry("1024x768")
+        self.geometry("1024x675")
 
         self.groups = DataBase.get_groups()
         self.students = []
 
         self.left_frame = Frame(self)
 
-        self.groups_combobox = Combobox(self.left_frame, values=['Все'] + [value[1] for value in self.groups])
+        self.groups_combobox = Combobox(self.left_frame, values=['Все'] + [value[1] for value in self.groups], state='readonly')
         self.groups_combobox.set('Все')
         self.groups_combobox.bind("<<ComboboxSelected>>", self.update_table)
         self.groups_combobox.pack(side=TOP, anchor=W, pady=[0, 25])
@@ -30,7 +31,14 @@ class MainWindow(Tk):
         self.search_entry.bind('<KeyRelease>', self.on_search_entry_key_pressed)
         self.search_entry.pack(side=TOP, anchor=W)
 
-        self.left_frame.grid(row=0, column=0, sticky=N, pady=20)
+        self.filters_value = IntVar()
+        self.filters_value.set(1)
+        self.all_student_radio = Radiobutton(text='Все', variable=self.filters_value, value=1)
+        self.excellent_students_radio = Radiobutton(text='Отличники', variable=self.filters_value, value=2)
+        self.male_students = Radiobutton(text='Мужчины', variable=self.filters_value, value=3)
+        self.female_students = Radiobutton(text='Женщины', variable=self.filters_value, value=4)
+
+        self.left_frame.grid(row=0, column=0, sticky=N, pady=20, padx=20)
 
         columns = ('id', 'fullname', 'birth_date', 'phone', 'address', 'group', 'average_mark')
         self.table = Treeview(columns=columns, show='headings')
@@ -49,7 +57,8 @@ class MainWindow(Tk):
         self.table.column('group', width=70)
         self.table.column('average_mark', width=95)
         self.table.grid(row=0, column=1, columnspan=3, padx=20, pady=20)
-        self.table.bind('<Double-1>', self.on_table_click)
+        if role == 1:
+            self.table.bind('<Double-1>', self.on_table_click)
         self.update_table(None)
         if role == 1:
             self.buttons_frame = Frame()
@@ -57,8 +66,11 @@ class MainWindow(Tk):
             self.add_button = Button(self.buttons_frame, text='Добавить', command=self.add_button_click)
             self.add_button.pack(side=LEFT)
 
-            self.delete_button = Button(self.buttons_frame, text='Удалить')
-            self.delete_button.pack(side=LEFT)
+            self.print_button = Button(self.buttons_frame, text='Печать', command=lambda: PrintWindow())
+            self.print_button.pack(side=LEFT)
+
+            self.save_button = Button(self.buttons_frame, text='Сохранить...')
+            self.save_button.pack(side=LEFT)
 
             self.buttons_frame.grid(row=1, column=3, sticky=E, padx=20)
         self.mainloop()

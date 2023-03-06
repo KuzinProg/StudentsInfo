@@ -52,7 +52,7 @@ class StudentWindow(Toplevel):
         self.gender_label = Label(self.left_side, text='Пол')
         self.gender_label.pack(side=TOP, anchor=W, padx=50)
 
-        self.gender_combobox = Combobox(self.left_side, values=['Мужской', 'Женский'], width=37)
+        self.gender_combobox = Combobox(self.left_side, values=['Мужской', 'Женский'], width=37, state='readonly')
         self.gender_combobox.pack(side=TOP, anchor=W, padx=50, pady=[0, 15])
 
         self.phone_label = Label(self.left_side, text='Номер телефона')
@@ -71,7 +71,7 @@ class StudentWindow(Toplevel):
         self.group_label.pack(side=TOP, anchor=W, padx=50)
 
         self.groups = DataBase.get_groups()
-        self.group_combobox = Combobox(self.left_side, values=[value[1] for value in self.groups], width=37)
+        self.group_combobox = Combobox(self.left_side, values=[value[1] for value in self.groups], width=37, state='readonly')
         self.group_combobox.pack(side=TOP, anchor=W, padx=50, pady=[0, 15])
 
         self.average_mark_label = Label(self.left_side, text='Средний балл')
