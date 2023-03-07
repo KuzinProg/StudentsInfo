@@ -19,7 +19,7 @@ class StudentWindow(Toplevel):
         self.geometry("550x540")
         self.grab_set()
 
-        self.file_name = ''
+        self.file_name = None
         self.student = student
         self.img = None
 

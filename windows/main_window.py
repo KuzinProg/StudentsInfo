@@ -1,4 +1,6 @@
+import pickle
 from tkinter import *
+from tkinter import filedialog
 from tkinter.ttk import *
 
 from db_controller import DataBase
@@ -22,7 +24,7 @@ class MainWindow(Tk):
         self.groups_combobox.set('Все')
         self.groups_combobox.bind("<<ComboboxSelected>>", self.update_table)
         self.groups_combobox.pack(side=TOP, anchor=W, pady=[0, 25])
-        self.update_students()
+
 
         self.search_label = Label(self.left_frame, text='Поиск')
         self.search_label.pack(side=TOP, anchor=W)
@@ -33,11 +35,15 @@ class MainWindow(Tk):
 
         self.filters_value = IntVar()
         self.filters_value.set(1)
-        self.all_student_radio = Radiobutton(text='Все', variable=self.filters_value, value=1)
-        self.excellent_students_radio = Radiobutton(text='Отличники', variable=self.filters_value, value=2)
-        self.male_students = Radiobutton(text='Мужчины', variable=self.filters_value, value=3)
-        self.female_students = Radiobutton(text='Женщины', variable=self.filters_value, value=4)
-
+        self.all_student_radio = Radiobutton(self.left_frame, text='Все', variable=self.filters_value, value=1, command=self.on_change_filters_radio_selection)
+        self.all_student_radio.pack(side=TOP, anchor=W, pady=[25, 0])
+        self.excellent_students_radio = Radiobutton(self.left_frame, text='Отличники', variable=self.filters_value, value=2, command=self.on_change_filters_radio_selection)
+        self.excellent_students_radio.pack(side=TOP, anchor=W)
+        self.male_students = Radiobutton(self.left_frame, text='Мужчины', variable=self.filters_value, value=3, command=self.on_change_filters_radio_selection)
+        self.male_students.pack(side=TOP, anchor=W)
+        self.female_students = Radiobutton(self.left_frame, text='Женщины', variable=self.filters_value, value=4, command=self.on_change_filters_radio_selection)
+        self.female_students.pack(side=TOP, anchor=W)
+        self.update_students()
         self.left_frame.grid(row=0, column=0, sticky=N, pady=20, padx=20)
 
         columns = ('id', 'fullname', 'birth_date', 'phone', 'address', 'group', 'average_mark')
@@ -69,7 +75,7 @@ class MainWindow(Tk):
             self.print_button = Button(self.buttons_frame, text='Печать', command=lambda: PrintWindow())
             self.print_button.pack(side=LEFT)
 
-            self.save_button = Button(self.buttons_frame, text='Сохранить...')
+            self.save_button = Button(self.buttons_frame, text='Сохранить...', command=self.on_save_button_click)
             self.save_button.pack(side=LEFT)
 
             self.buttons_frame.grid(row=1, column=3, sticky=E, padx=20)
@@ -87,6 +93,13 @@ class MainWindow(Tk):
     def update_students(self):
         self.students = DataBase.get_students(
             self.groups[self.groups_combobox.current() - 1][0] if self.groups_combobox.current() != 0 else None)
+        value = self.filters_value.get()
+        if value == 2:
+            self.students = list(filter(lambda s: s.average_mark == 5, self.students))
+        elif value == 3:
+            self.students = list(filter(lambda s: s.gender == 'Мужской', self.students))
+        elif value == 4:
+            self.students = list(filter(lambda s: s.gender == 'Женский', self.students))
 
     def on_search_entry_key_pressed(self, event):
         self.update_table(event)
@@ -116,4 +129,12 @@ class MainWindow(Tk):
             student_window.add_button.bind('<Destroy>', self.update_table)
             break
 
+    def on_change_filters_radio_selection(self):
+        self.update_table(None)
+
+    def on_save_button_click(self):
+        file = filedialog.asksaveasfile(defaultextension='.dat')
+        if file is not None:
+            with open(file.name, "wb") as f:
+                pickle.dump(self.students, f)
 
