@@ -89,7 +89,6 @@ class StudentWindow(Toplevel):
         self.cancel_button.pack(side=LEFT)
 
         self.right_side = Frame(self)
-        # , highlightthickness=2, highlightbackground='#121212'
         self.photo_canvas = Canvas(self.right_side, bg="white", width=150, height=175)
         self.photo_canvas.pack(side=TOP)
         self.upload_button = Button(self.right_side, text='Загрузить...', command=self.upload_button_click)
@@ -115,9 +114,7 @@ class StudentWindow(Toplevel):
             self.average_mark_entry.insert(0, student.average_mark)
             if student.photo is not None:
                 self.file_name = student.photo
-                self.update_image(student.photo)
-
-
+                self.load_image(student.photo)
 
     def add_button_click(self):
         if self.student is None:
@@ -134,7 +131,7 @@ class StudentWindow(Toplevel):
             DataBase.update_student(student)
         self.destroy()
 
-    def update_image(self, file_name):
+    def load_image(self, file_name):
         path = f'{pathlib.Path(__file__).parent.parent}/photos/{file_name}'
         self.img = Image.open(path).resize((150, 175))
         self.img = ImageTk.PhotoImage(self.img)
@@ -148,4 +145,4 @@ class StudentWindow(Toplevel):
             dst = f'{path}/photos/{os.path.basename(src)}'
             shutil.copy(src, dst)
             self.file_name = os.path.basename(src)
-            self.update_image(self.file_name)
+            self.load_image(self.file_name)
